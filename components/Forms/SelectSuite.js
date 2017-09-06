@@ -15,9 +15,10 @@ class SelectSuite extends React.Component {
   }
 
   routerHandler(data) {
+    const query = data.replace(/ /g, "")
     Router.push({
       pathname: this.state.redirect,
-      query: { name: data },
+      query: { name: query },
     })
   }
 
@@ -37,7 +38,7 @@ class SelectSuite extends React.Component {
 
   renderOptions(items) {
     return items.map((item, i) =>
-      <option key={i}>{item.value}</option>
+      <option key={i} data-test-name={`${item.value}`}>{item.name}</option>
     )
   }
 

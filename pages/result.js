@@ -13,7 +13,6 @@ export default class Result extends React.Component {
   static getInitialProps ({ query }) {
     const testName = query.name.split('" "')
     const testData = Homepage[testName]
-    console.log(testName)
     return { testData }
   }
 
@@ -22,7 +21,6 @@ export default class Result extends React.Component {
     return (
       <div>
         <CompareResults { ...testValues }/>
-        {console.log(this.props)}
       </div>
     )
   }

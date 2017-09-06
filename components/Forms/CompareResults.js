@@ -13,12 +13,6 @@ class CompareResults extends React.Component {
     this.compareResults = this.compareResults.bind(this);
   }
 
-  onFormSubmit(e) {
-    e.preventDefault()
-    const queryParams = this.state.select.testSuite
-    queryParams? this.routerHandler(queryParams) : console.log('nie wybrales daty')
-  }
-
   handleVariables(e) {
     const select = this.state.select
     select.testResults = e.target.value
@@ -27,25 +21,29 @@ class CompareResults extends React.Component {
     });
   }
 
-  compareResults(e) {
-    const callVar = this.props
-    const testedVar = this.state.testResults
-    const valuesToString = JSON.stringify(testedVar.testResults.split(' '))
-    const clean = valuesToString.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
-    const cleanNoMarks = clean.replace(/([^:]*):/g,'$1').split('.').join('').toLowerCase()
-    const varToCheck = JSON.parse(cleanNoMarks).sort()
-    const varDefined = Object.keys(callVar).map(key => callVar[key])
-    const definedString = JSON.stringify(varDefined)
-    const definedNoMarks = definedString.replace(/([^:]*):/g,'$1').split('.').join('').toLowerCase()
-    const varDefinedSure = JSON.parse(definedNoMarks).sort()
-    const missingVar = []
+  makeEqualObj(obj) {
+    const makeString = JSON.stringify(obj)
+    const cleanString = makeString.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
+    const makeObj = JSON.parse(cleanString).sort()
+    return makeObj
+  }
 
-    if (varDefinedSure.length !== varToCheck.length) {
-      varToCheck.forEach(varName => {
-        if(!varDefinedSure.includes(varName)) {
+  compareResults(e) {
+    e.preventDefault()
+    const requiredVar = this.props
+    const checkVar = this.state.testResults
+    const checkVarClean = this.makeEqualObj(checkVar.testResults.split(' '))
+    const requiredVarValues = Object.keys(requiredVar).map(key => requiredVar[key])
+    const requiredVarClean = this.makeEqualObj(requiredVarValues)
+    const missingVar =[]
+    const presentVar =[]
+
+    if(requiredVarClean.length !== checkVarClean.length) {
+      requiredVarClean.forEach(varName => {
+        if(!checkVarClean.includes(varName)) {
           missingVar.push(varName)
         } else {
-          console.log("variable is in call")
+          presentVar.push(varName)
         }
       })
     }
@@ -65,9 +63,7 @@ class CompareResults extends React.Component {
                 value="Compare"
                 name="compare_results"
                 className="button compare__form__submit"
-                onClick={ this.compareResults.bind(this) }
-              />
-
+                onClick={ this.compareResults.bind(this) }/>
             </form>
           </div>
         </div>
