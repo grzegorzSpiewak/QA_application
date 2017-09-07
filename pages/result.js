@@ -7,20 +7,23 @@ import CompareResults from '../components/Forms/CompareResults'
 /**
  * Content
  */
-import Homepage from '../data/Homepage'
+import TestCases from '../data/TestCases'
 
 export default class Result extends React.Component {
   static getInitialProps ({ query }) {
     const testName = query.name.split('" "')
-    const testData = Homepage[testName]
-    return { testData }
+    const testNameData = TestCases[testName]
+    return { testNameData, testName }
   }
 
   render () {
-    const testValues = this.props.testData
+    const testNameData = this.props.testNameData
+    const testName = this.props.testName
     return (
       <div>
-        <CompareResults { ...testValues }/>
+        <h1>This is {testName} test case</h1>
+        <CompareResults { ...testNameData } />
+        {console.log(testNameData)}
       </div>
     )
   }

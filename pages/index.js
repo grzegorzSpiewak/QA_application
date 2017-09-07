@@ -7,14 +7,14 @@ import SelectSuite from '../components/Forms/SelectSuite'
 /**
  * Content
  */
-import Homepage from '../data/Homepage'
+import MainPageContent from '../data/MainPage'
 
 export default class extends React.Component {
 
   render () {
     return (
       <div>
-        <SelectSuite { ...Homepage }/>
+        <SelectSuite { ...MainPageContent }/>
       </div>
     )
   }

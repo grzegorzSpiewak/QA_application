@@ -18,7 +18,7 @@ class CompareResults extends React.Component {
     select.testResults = e.target.value
     this.setState({
       testResults: select
-    });
+    })
   }
 
   makeEqualObj(obj) {
@@ -30,7 +30,7 @@ class CompareResults extends React.Component {
 
   compareResults(e) {
     e.preventDefault()
-    const requiredVar = this.props
+    const requiredVar = this.props.variables
     const checkVar = this.state.testResults
     const checkVarClean = this.makeEqualObj(checkVar.testResults.split(' '))
     const requiredVarValues = Object.keys(requiredVar).map(key => requiredVar[key])
@@ -38,16 +38,18 @@ class CompareResults extends React.Component {
     const missingVar =[]
     const presentVar =[]
 
-    if(requiredVarClean.length !== checkVarClean.length) {
+    if(requiredVarClean.length !== checkVarClean.length || checkVarClean.length !== requiredVarClean.length) {
       requiredVarClean.forEach(varName => {
         if(!checkVarClean.includes(varName)) {
+          console.log("dziala")
           missingVar.push(varName)
         } else {
           presentVar.push(varName)
         }
       })
     }
-    console.log(missingVar)
+    console.log("Those var are missing from call " + missingVar)
+    console.log("Those var are present in call " + presentVar)
   }
 
   render() {
@@ -68,7 +70,7 @@ class CompareResults extends React.Component {
           </div>
         </div>
       </section>
-    );
+    )
   }
 }
 
