@@ -1,8 +1,11 @@
 import Router from 'next/router'
 import React, {Component} from 'react'
 
+import Missing from '../Missing'
+import Present from '../Present'
+
 class CompareResults extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props);
     this.state = {
       select: {
@@ -13,7 +16,7 @@ class CompareResults extends React.Component {
     this.compareResults = this.compareResults.bind(this);
   }
 
-  handleVariables(e) {
+  handleVariables (e) {
     const select = this.state.select
     select.testResults = e.target.value
     this.setState({
@@ -21,14 +24,14 @@ class CompareResults extends React.Component {
     })
   }
 
-  makeEqualObj(obj) {
+  makeEqualObj (obj) {
     const makeString = JSON.stringify(obj)
     const cleanString = makeString.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
     const makeObj = JSON.parse(cleanString).sort()
     return makeObj
   }
 
-  compareResults(e) {
+  compareResults (e) {
     e.preventDefault()
     const requiredVar = this.props.variables
     const checkVar = this.state.testResults
@@ -41,18 +44,19 @@ class CompareResults extends React.Component {
     if(requiredVarClean.length !== checkVarClean.length || checkVarClean.length !== requiredVarClean.length) {
       requiredVarClean.forEach(varName => {
         if(!checkVarClean.includes(varName)) {
-          console.log("dziala")
-          missingVar.push(varName)
+          missingVar.push(varName);
         } else {
           presentVar.push(varName)
         }
       })
     }
-    console.log("Those var are missing from call " + missingVar)
-    console.log("Those var are present in call " + presentVar)
+    this.setState({
+      missingVar,
+      presentVar
+    });
   }
 
-  render() {
+  render () {
     return (
       <section className="compare">
         <div className="wrap">
@@ -67,6 +71,8 @@ class CompareResults extends React.Component {
                 className="button compare__form__submit"
                 onClick={ this.compareResults.bind(this) }/>
             </form>
+            { this.state && this.state.missingVar ? <Missing {...this.state.missingVar} /> : null }
+            { this.state && this.state.presentVar ? <Present {...this.state.presentVar} /> : null }
           </div>
         </div>
       </section>

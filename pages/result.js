@@ -16,14 +16,19 @@ export default class Result extends React.Component {
     return { testNameData, testName }
   }
 
+  makeReadableName (name) {
+    const split = JSON.stringify(name).match(/[A-Z][a-z]+|[0-9]+/g).join(" ")
+    return split
+  }
+
   render () {
     const testNameData = this.props.testNameData
     const testName = this.props.testName
+
     return (
       <div>
-        <h1>This is {testName} test case</h1>
+        <h1>This is {this.makeReadableName(testName)} test case</h1>
         <CompareResults { ...testNameData } />
-        {console.log(testNameData)}
       </div>
     )
   }
