@@ -1,6 +1,5 @@
 import Router from 'next/router'
 import React, {Component} from 'react'
-import QueryString from 'query-string'
 
 import Missing from '../Missing'
 import Present from '../Present'
@@ -24,16 +23,15 @@ class CompareResults extends React.Component {
     this.setState({
       testResults: select
     })
-    this.handlePasteData()
   }
 
-  handlePasteData () {
-    const data = JSON.stringify(this.state.select.testResults)
+  handlePasteData (value) {
+    const data = JSON.stringify(value)
     const pairs =  data.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
     const cleanPairs = pairs.replace(/\\t/g, ' ')
     const dataCheck = []
 
-    cleanPairs.split(', ').map(elem => elem.replace("\"", "")).map(elem => {
+    cleanPairs.split(', ').map(elem => elem.replace(/(^"|"$)/g, "")).map(elem => {
       const splitPairs = elem.split(' ')
       let name = splitPairs[0]
       let value = splitPairs[1]
@@ -41,23 +39,32 @@ class CompareResults extends React.Component {
         name = splitPairs[0]
         value = splitPairs.splice(1).join(' ')
       }
-      const dataTocheck = {
+      const pairsToCheck = {
         varName: name,
         varValue: value
       }
-      dataCheck.push(dataToCheck)
+      dataCheck.push(pairsToCheck)
     })
-    this.setState({
-      dataCheck
-    })
+    return dataCheck
   }
 
   compareResults (e) {
     e.preventDefault()
-    const requiredVar = this.props.variables
-    const dataToCheck = this.state.dataCheck
-    console.log(dataToCheck)
+    const varRequired = this.props.variables
+    const pasteData = this.state.select.testResults
+    const varToCheck = this.handlePasteData(pasteData)
+    const missingVar = []
+    const presentVar = []
 
+    if(varToCheck.length !== varRequired.length) {
+      varToCheck.map(checkName => {
+        if(varRequired.includes(checkName.varName)) {
+          console.log("tak")
+        } else {
+          console.log(checkName)
+        }
+      })
+    }
   }
 
   render () {
