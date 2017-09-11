@@ -40,8 +40,8 @@ class CompareResults extends React.Component {
         value = splitPairs.splice(1).join(' ')
       }
       const pairsToCheck = {
-        varName: name,
-        varValue: value
+        name,
+        value
       }
       dataCheck.push(pairsToCheck)
     })
@@ -53,18 +53,32 @@ class CompareResults extends React.Component {
     const varRequired = this.props.variables
     const pasteData = this.state.select.testResults
     const varToCheck = this.handlePasteData(pasteData)
-    const missingVar = []
-    const presentVar = []
+    const varToCheckNames = varToCheck.map(check => check.name)
+    const presentNames = []
+    const presentData = []
+    const missingNames = []
 
-    if(varToCheck.length !== varRequired.length) {
-      varToCheck.map(checkName => {
-        if(varRequired.includes(checkName.varName)) {
-          console.log("tak")
+    if(varRequired.length !== varToCheckNames.length) {
+      varRequired.forEach(reqName => {
+        if(!varToCheckNames.includes(reqName)) {
+          missingNames.push(reqName)
         } else {
-          console.log(checkName)
+          presentNames.push(reqName)
         }
       })
     }
+
+    varToCheck.map(searched => {
+      const name = searched.name
+      if(presentNames.includes(name)) {
+        presentData.push(searched)
+      }
+    })
+
+    this.setState({
+      missingNames,
+      presentData
+    })
   }
 
   render () {
@@ -82,8 +96,8 @@ class CompareResults extends React.Component {
                 className="button compare__form__submit"
                 onClick={ this.compareResults.bind(this) }/>
             </form>
-            { this.state && this.state.missingVar ? <Missing {...this.state.missingVar} /> : null }
-            { this.state && this.state.presentVar ? <Present {...this.state.presentVar} /> : null }
+            { this.state && this.state.missingNames ? <Missing {...this.state.missingNames} /> : null }
+            { this.state && this.state.presentData ? <Present {...this.state.presentData} /> : null }
           </div>
         </div>
       </section>
