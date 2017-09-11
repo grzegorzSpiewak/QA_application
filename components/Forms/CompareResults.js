@@ -13,7 +13,8 @@ class CompareResults extends React.Component {
       }
     }
     this.handleVariables = this.handleVariables.bind(this)
-    this.compareResults = this.compareResults.bind(this);
+    this.compareResults = this.compareResults.bind(this)
+    this.handlePasteData = this.handlePasteData.bind(this)
   }
 
   handleVariables (e) {
@@ -24,36 +25,60 @@ class CompareResults extends React.Component {
     })
   }
 
-  makeEqualObj (obj) {
-    const makeString = JSON.stringify(obj)
-    const cleanString = makeString.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
-    const makeObj = JSON.parse(cleanString).sort()
-    return makeObj
+  handlePasteData (value) {
+    const data = JSON.stringify(value)
+    const pairs =  data.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
+    const cleanPairs = pairs.replace(/\\t/g, ' ')
+    const dataCheck = []
+
+    cleanPairs.split(', ').map(elem => elem.replace(/(^"|"$)/g, "")).map(elem => {
+      const splitPairs = elem.split(' ')
+      let name = splitPairs[0]
+      let value = splitPairs[1]
+      if (splitPairs.length > 2) {
+        name = splitPairs[0]
+        value = splitPairs.splice(1).join(' ')
+      }
+      const pairsToCheck = {
+        name,
+        value
+      }
+      dataCheck.push(pairsToCheck)
+    })
+    return dataCheck
   }
 
   compareResults (e) {
     e.preventDefault()
-    const requiredVar = this.props.variables
-    const checkVar = this.state.testResults
-    const checkVarClean = this.makeEqualObj(checkVar.testResults.split(' '))
-    const requiredVarValues = Object.keys(requiredVar).map(key => requiredVar[key])
-    const requiredVarClean = this.makeEqualObj(requiredVarValues)
-    const missingVar =[]
-    const presentVar =[]
+    const varRequired = this.props.variables
+    const pasteData = this.state.select.testResults
+    const varToCheck = this.handlePasteData(pasteData)
+    const varToCheckNames = varToCheck.map(check => check.name)
+    const presentNames = []
+    const presentData = []
+    const missingNames = []
 
-    if(requiredVarClean.length !== checkVarClean.length || checkVarClean.length !== requiredVarClean.length) {
-      requiredVarClean.forEach(varName => {
-        if(!checkVarClean.includes(varName)) {
-          missingVar.push(varName);
+    if(varRequired.length !== varToCheckNames.length) {
+      varRequired.forEach(reqName => {
+        if(!varToCheckNames.includes(reqName)) {
+          missingNames.push(reqName)
         } else {
-          presentVar.push(varName)
+          presentNames.push(reqName)
         }
       })
     }
+
+    varToCheck.map(searched => {
+      const name = searched.name
+      if(presentNames.includes(name)) {
+        presentData.push(searched)
+      }
+    })
+
     this.setState({
-      missingVar,
-      presentVar
-    });
+      missingNames,
+      presentData
+    })
   }
 
   render () {
@@ -63,7 +88,7 @@ class CompareResults extends React.Component {
           <div>
             <h1 className="compare__header">Copy and paste variables from saved logs</h1>
             <form className="compare__form" id="compare">
-              <textarea onChange={ this.handleVariables }/>
+              <textarea onChange={ this.handleVariables.bind(this) }/>
               <input
                 type="button"
                 value="Compare"
@@ -71,8 +96,8 @@ class CompareResults extends React.Component {
                 className="button compare__form__submit"
                 onClick={ this.compareResults.bind(this) }/>
             </form>
-            { this.state && this.state.missingVar ? <Missing {...this.state.missingVar} /> : null }
-            { this.state && this.state.presentVar ? <Present {...this.state.presentVar} /> : null }
+            { this.state && this.state.missingNames ? <Missing {...this.state.missingNames} /> : null }
+            { this.state && this.state.presentData ? <Present {...this.state.presentData} /> : null }
           </div>
         </div>
       </section>
