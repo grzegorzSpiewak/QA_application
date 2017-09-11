@@ -1,5 +1,6 @@
 import Router from 'next/router'
 import React, {Component} from 'react'
+import QueryString from 'query-string'
 
 import Missing from '../Missing'
 import Present from '../Present'
@@ -13,7 +14,8 @@ class CompareResults extends React.Component {
       }
     }
     this.handleVariables = this.handleVariables.bind(this)
-    this.compareResults = this.compareResults.bind(this);
+    this.compareResults = this.compareResults.bind(this)
+    this.handlePasteData = this.handlePasteData.bind(this)
   }
 
   handleVariables (e) {
@@ -22,38 +24,40 @@ class CompareResults extends React.Component {
     this.setState({
       testResults: select
     })
+    this.handlePasteData()
   }
 
-  makeEqualObj (obj) {
-    const makeString = JSON.stringify(obj)
-    const cleanString = makeString.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
-    const makeObj = JSON.parse(cleanString).sort()
-    return makeObj
+  handlePasteData () {
+    const data = JSON.stringify(this.state.select.testResults)
+    const pairs =  data.replace(/(?:\\[rn]|[\r\n]+)+/g, '", "')
+    const cleanPairs = pairs.replace(/\\t/g, ' ')
+    const dataCheck = []
+
+    cleanPairs.split(', ').map(elem => elem.replace("\"", "")).map(elem => {
+      const splitPairs = elem.split(' ')
+      let name = splitPairs[0]
+      let value = splitPairs[1]
+      if (splitPairs.length > 2) {
+        name = splitPairs[0]
+        value = splitPairs.splice(1).join(' ')
+      }
+      const dataTocheck = {
+        varName: name,
+        varValue: value
+      }
+      dataCheck.push(dataToCheck)
+    })
+    this.setState({
+      dataCheck
+    })
   }
 
   compareResults (e) {
     e.preventDefault()
     const requiredVar = this.props.variables
-    const checkVar = this.state.testResults
-    const checkVarClean = this.makeEqualObj(checkVar.testResults.split(' '))
-    const requiredVarValues = Object.keys(requiredVar).map(key => requiredVar[key])
-    const requiredVarClean = this.makeEqualObj(requiredVarValues)
-    const missingVar =[]
-    const presentVar =[]
+    const dataToCheck = this.state.dataCheck
+    console.log(dataToCheck)
 
-    if(requiredVarClean.length !== checkVarClean.length || checkVarClean.length !== requiredVarClean.length) {
-      requiredVarClean.forEach(varName => {
-        if(!checkVarClean.includes(varName)) {
-          missingVar.push(varName);
-        } else {
-          presentVar.push(varName)
-        }
-      })
-    }
-    this.setState({
-      missingVar,
-      presentVar
-    });
   }
 
   render () {
@@ -63,7 +67,7 @@ class CompareResults extends React.Component {
           <div>
             <h1 className="compare__header">Copy and paste variables from saved logs</h1>
             <form className="compare__form" id="compare">
-              <textarea onChange={ this.handleVariables }/>
+              <textarea onChange={ this.handleVariables.bind(this) }/>
               <input
                 type="button"
                 value="Compare"
